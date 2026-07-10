@@ -4,6 +4,7 @@ import { Mail, MapPin, MessageCircle } from "lucide-react";
 import { mainNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import Image from "next/image";
 
 export function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ type: "general" });
@@ -12,9 +13,15 @@ export function Footer() {
     <footer className="bg-[#0B0B0B] text-[#F7F3EA]">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_1fr_1fr] lg:px-8">
         <div>
-          <p className="font-serif text-3xl font-semibold text-white">
-            MR Inmobiliaria
-          </p>
+          <div className="relative h-16 w-44">
+  <Image
+    src="/logo-mr.png"
+    alt="MR Inmobiliaria"
+    fill
+    className="object-contain object-left"
+    sizes="176px"
+  />
+</div>
           <p className="mt-4 max-w-sm text-sm leading-7 text-[#D8C6A3]">
             Compra, venta y renta de propiedades con asesoría profesional.
           </p>

@@ -2,9 +2,13 @@ import { PlusCircle } from "lucide-react";
 
 import { AdminPropertyCard } from "@/components/admin/AdminPropertyCard";
 import { Button } from "@/components/ui/Button";
-import { demoProperties } from "@/data/demo-properties";
+import { getAdminProperties } from "@/lib/properties";
 
-export default function AdminPropertiesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminPropertiesPage() {
+  const properties = await getAdminProperties();
+
   return (
     <div className="pb-24 lg:pb-0">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -29,11 +33,29 @@ export default function AdminPropertiesPage() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-5">
-        {demoProperties.map((property) => (
-          <AdminPropertyCard key={property.id} property={property} />
-        ))}
-      </div>
+      {properties.length > 0 ? (
+        <div className="mt-8 grid gap-5">
+          {properties.map((property) => (
+            <AdminPropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8 rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-8">
+          <h2 className="font-serif text-3xl font-semibold text-[#0B0B0B]">
+            Aún no hay propiedades cargadas.
+          </h2>
+
+          <p className="mt-4 text-sm leading-7 text-[#6F6A60]">
+            Agrega la primera propiedad desde el panel.
+          </p>
+
+          <div className="mt-6">
+            <Button href="/admin/propiedades/nueva">
+              Agregar propiedad
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

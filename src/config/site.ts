@@ -4,9 +4,12 @@ export const siteConfig = {
   description:
     "Compra, venta y renta de propiedades con asesoría profesional en Nuevo León, Tamaulipas, Yucatán, Campeche y Quintana Roo.",
   email: "mrinmobiliariamx@icloud.com",
-  whatsappPrincipal: "PENDIENTE_NUMERO_PRINCIPAL",
-  whatsappSecundario: "PENDIENTE_NUMERO_SECUNDARIO",
-  url: "http://localhost:3000",
+
+// Formato: país + número, sin espacios, sin +, sin guiones.
+whatsappPrincipal: "528128840795",
+
+url: "http://localhost:3000",
+
   areas: [
     "Nuevo León",
     "Tamaulipas",

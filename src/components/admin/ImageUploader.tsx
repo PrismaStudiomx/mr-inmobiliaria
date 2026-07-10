@@ -4,13 +4,27 @@ import Image from "next/image";
 import { ImageIcon, Trash2, Upload } from "lucide-react";
 import { useState } from "react";
 
-type ImageUploaderProps = {
-  initialImages?: string[];
+type ImageItem = {
+  url: string;
+  file?: File;
+  isExisting?: boolean;
 };
 
-export function ImageUploader({ initialImages = [] }: ImageUploaderProps) {
-  const [images, setImages] = useState<string[]>(initialImages.slice(0, 6));
-  const [mainImage, setMainImage] = useState<string>(images[0] || "");
+type ImageUploaderProps = {
+  initialImages?: string[];
+  onFilesChange?: (files: File[]) => void;
+};
+
+export function ImageUploader({
+  initialImages = [],
+  onFilesChange,
+}: ImageUploaderProps) {
+  const [images, setImages] = useState<ImageItem[]>(
+    initialImages.slice(0, 6).map((url) => ({
+      url,
+      isExisting: true,
+    }))
+  );
 
   function handleImages(event: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files || []);
@@ -19,23 +33,34 @@ export function ImageUploader({ initialImages = [] }: ImageUploaderProps) {
     if (availableSlots <= 0) return;
 
     const selectedFiles = files.slice(0, availableSlots);
-    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
 
-    const nextImages = [...images, ...previews];
+    const newImages: ImageItem[] = selectedFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+      isExisting: false,
+    }));
+
+    const nextImages = [...images, ...newImages];
+
     setImages(nextImages);
 
-    if (!mainImage && nextImages[0]) {
-      setMainImage(nextImages[0]);
-    }
+    onFilesChange?.(
+      nextImages
+        .filter((image) => !image.isExisting && image.file)
+        .map((image) => image.file as File)
+    );
   }
 
-  function removeImage(image: string) {
-    const nextImages = images.filter((item) => item !== image);
+  function removeImage(imageUrl: string) {
+    const nextImages = images.filter((item) => item.url !== imageUrl);
+
     setImages(nextImages);
 
-    if (mainImage === image) {
-      setMainImage(nextImages[0] || "");
-    }
+    onFilesChange?.(
+      nextImages
+        .filter((image) => !image.isExisting && image.file)
+        .map((image) => image.file as File)
+    );
   }
 
   return (
@@ -79,57 +104,44 @@ export function ImageUploader({ initialImages = [] }: ImageUploaderProps) {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {images.map((image, index) => {
-            const isMain = mainImage === image;
+          {images.map((image, index) => (
+            <div
+              key={`${image.url}-${index}`}
+              className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-white"
+            >
+              <div className="relative aspect-[4/3]">
+                <Image
+                  src={image.url}
+                  alt={`Fotografía ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 25vw, 100vw"
+                />
 
-            return (
-              <div
-                key={`${image}-${index}`}
-                className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-white"
-              >
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={image}
-                    alt={`Fotografía ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 25vw, 100vw"
-                  />
-
-                  {isMain && (
-                    <div className="absolute left-3 top-3 rounded-full bg-[#C9A24A] px-3 py-1 text-xs font-bold text-[#0B0B0B]">
-                      Principal
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 p-3">
-                  <button
-                    type="button"
-                    onClick={() => setMainImage(image)}
-                    className="rounded-full border border-black/10 px-3 py-2 text-xs font-semibold text-[#252525] transition hover:border-[#C9A24A] hover:text-[#C9A24A]"
-                  >
+                {index === 0 && (
+                  <div className="absolute left-3 top-3 rounded-full bg-[#C9A24A] px-3 py-1 text-xs font-bold text-[#0B0B0B]">
                     Principal
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => removeImage(image)}
-                    className="inline-flex items-center justify-center gap-1 rounded-full border border-black/10 px-3 py-2 text-xs font-semibold text-[#252525] transition hover:border-red-500 hover:text-red-600"
-                  >
-                    <Trash2 size={14} />
-                    Eliminar
-                  </button>
-                </div>
+                  </div>
+                )}
               </div>
-            );
-          })}
+
+              <div className="p-3">
+                <button
+                  type="button"
+                  onClick={() => removeImage(image.url)}
+                  className="inline-flex w-full items-center justify-center gap-1 rounded-full border border-black/10 px-3 py-2 text-xs font-semibold text-[#252525] transition hover:border-red-500 hover:text-red-600"
+                >
+                  <Trash2 size={14} />
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
       <p className="mt-4 text-xs text-[#6F6A60]">
-        Nota: estas imágenes son vista previa local. Más adelante las guardaremos
-        en Supabase Storage.
+        Las fotografías nuevas se guardarán al guardar la propiedad.
       </p>
     </div>
   );

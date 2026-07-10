@@ -9,6 +9,7 @@ import { mainNavigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -19,14 +20,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-[#FFFDF8]/95 backdrop-blur-xl">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="font-serif text-2xl font-semibold tracking-wide text-[#0B0B0B]">
-            MR
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#C9A24A]">
-            Inmobiliaria
-          </span>
-        </Link>
+        <Link href="/" className="relative block h-12 w-36">
+  <Image
+    src="/logo-mr.png"
+    alt="MR Inmobiliaria"
+    fill
+    priority
+    className="object-contain object-left"
+    sizes="144px"
+  />
+</Link>
 
         <div className="hidden items-center gap-8 lg:flex">
           {mainNavigation.map((item) => {

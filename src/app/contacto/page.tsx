@@ -48,10 +48,7 @@ const intentionCards = [
 export default function ContactPage() {
   const generalWhatsAppUrl = buildWhatsAppUrl({ type: "general" });
 
-  const secondaryWhatsAppUrl = buildWhatsAppUrl({
-    type: "general",
-    phone: siteConfig.whatsappSecundario,
-  });
+ 
 
   return (
     <>
@@ -175,18 +172,10 @@ export default function ContactPage() {
                     className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[#F7F3EA] p-5 text-sm font-semibold text-[#252525] transition hover:border-[#C9A24A] hover:text-[#C9A24A]"
                   >
                     <MessageCircle size={20} className="text-[#C9A24A]" />
-                    WhatsApp principal
+                    WhatsApp 
                   </a>
 
-                  <a
-                    href={secondaryWhatsAppUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[#F7F3EA] p-5 text-sm font-semibold text-[#252525] transition hover:border-[#C9A24A] hover:text-[#C9A24A]"
-                  >
-                    <MessageCircle size={20} className="text-[#C9A24A]" />
-                    WhatsApp secundario
-                  </a>
+                  
 
                   <a
                     href={`mailto:${siteConfig.email}`}

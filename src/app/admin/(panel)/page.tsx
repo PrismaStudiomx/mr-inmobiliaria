@@ -1,36 +1,29 @@
-import {
-  Building2,
-  Eye,
-  PauseCircle,
-  PlusCircle,
-  Star,
-} from "lucide-react";
+import { PlusCircle } from "lucide-react";
 
+import { AdminPropertyCard } from "@/components/admin/AdminPropertyCard";
 import { Button } from "@/components/ui/Button";
-import { demoProperties } from "@/data/demo-properties";
+import { getAdminProperties } from "@/lib/properties";
 
-export default function AdminDashboardPage() {
-  const available = demoProperties.filter(
-    (property) => property.publicationStatus === "Disponible"
-  ).length;
+export const dynamic = "force-dynamic";
 
-  const featured = demoProperties.filter((property) => property.featured).length;
+export default async function AdminPropertiesPage() {
+  const properties = await getAdminProperties();
 
   return (
     <div className="pb-24 lg:pb-0">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
-            Panel privado
+            Propiedades
           </p>
 
           <h1 className="mt-3 font-serif text-4xl font-semibold text-[#0B0B0B] sm:text-5xl">
-            Panel de MR Inmobiliaria
+            Lista de propiedades
           </h1>
 
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[#6F6A60]">
-            Administra propiedades, fotografías, precios y disponibilidad desde
-            un panel sencillo.
+            Revisa las propiedades cargadas, cambia su disponibilidad o edita su
+            información.
           </p>
         </div>
 
@@ -40,73 +33,29 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-6">
-          <Building2 className="text-[#C9A24A]" size={26} />
-          <p className="mt-5 text-sm font-semibold text-[#6F6A60]">
-            Total propiedades
-          </p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#0B0B0B]">
-            {demoProperties.length}
-          </p>
+      {properties.length > 0 ? (
+        <div className="mt-8 grid gap-5">
+          {properties.map((property) => (
+            <AdminPropertyCard key={property.id} property={property} />
+          ))}
         </div>
+      ) : (
+        <div className="mt-8 rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-8">
+          <h2 className="font-serif text-3xl font-semibold text-[#0B0B0B]">
+            Aún no hay propiedades cargadas.
+          </h2>
 
-        <div className="rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-6">
-          <Eye className="text-[#C9A24A]" size={26} />
-          <p className="mt-5 text-sm font-semibold text-[#6F6A60]">
-            Disponibles
+          <p className="mt-4 text-sm leading-7 text-[#6F6A60]">
+            Agrega la primera propiedad desde el panel.
           </p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#0B0B0B]">
-            {available}
-          </p>
+
+          <div className="mt-6">
+            <Button href="/admin/propiedades/nueva">
+              Agregar propiedad
+            </Button>
+          </div>
         </div>
-
-        <div className="rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-6">
-          <Star className="text-[#C9A24A]" size={26} />
-          <p className="mt-5 text-sm font-semibold text-[#6F6A60]">
-            Destacadas
-          </p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#0B0B0B]">
-            {featured}
-          </p>
-        </div>
-
-        <div className="rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-6">
-          <PauseCircle className="text-[#C9A24A]" size={26} />
-          <p className="mt-5 text-sm font-semibold text-[#6F6A60]">
-            Pausadas
-          </p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#0B0B0B]">
-            0
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 grid gap-4 lg:grid-cols-3">
-        <Button href="/admin/propiedades" className="min-h-16">
-          Ver propiedades
-        </Button>
-
-        <Button href="/admin/propiedades/nueva" className="min-h-16">
-          Agregar propiedad
-        </Button>
-
-        <Button href="/" variant="secondary" className="min-h-16">
-          Ver sitio público
-        </Button>
-      </div>
-
-      <div className="mt-8 rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-6">
-        <h2 className="font-serif text-3xl font-semibold text-[#0B0B0B]">
-          Siguiente pendiente
-        </h2>
-
-        <p className="mt-4 text-sm leading-7 text-[#6F6A60]">
-          Este panel todavía usa propiedades demo. Más adelante conectaremos
-          Supabase para guardar propiedades reales, fotos, disponibilidad y login
-          privado.
-        </p>
-      </div>
+      )}
     </div>
   );
 }

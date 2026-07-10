@@ -11,9 +11,49 @@ const photoOptions = ["Sí", "No", "Algunas, pero faltan más"];
 
 export function SellPropertyForm() {
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    setSuccess(false);
+    setErrorMessage("");
+    setIsSending(true);
+
+    const formData = new FormData(event.currentTarget);
+
+    const payload = {
+      name: String(formData.get("name") || ""),
+      phone: String(formData.get("phone") || ""),
+      state: String(formData.get("state") || ""),
+      cityZone: String(formData.get("cityZone") || ""),
+      reference: String(formData.get("reference") || ""),
+      propertyType: String(formData.get("propertyType") || ""),
+      operation: String(formData.get("operation") || ""),
+      estimatedPrice: String(formData.get("estimatedPrice") || ""),
+      hasPhotos: String(formData.get("hasPhotos") || ""),
+      message: String(formData.get("message") || ""),
+    };
+
+    const response = await fetch("/api/vender-propiedad", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    setIsSending(false);
+
+    if (!response.ok) {
+      setErrorMessage(
+        "No se pudo enviar la información. Intenta nuevamente o contáctanos por WhatsApp."
+      );
+      return;
+    }
+
+    event.currentTarget.reset();
     setSuccess(true);
   }
 
@@ -185,7 +225,7 @@ export function SellPropertyForm() {
             required
             name="message"
             rows={5}
-            placeholder="Cuéntanos detalles importantes de la propiedad: tamaño, características, disponibilidad o cualquier información relevante."
+            placeholder="Cuéntanos detalles importantes de la propiedad."
             className="w-full rounded-2xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#C9A24A]"
           />
         </div>
@@ -193,15 +233,21 @@ export function SellPropertyForm() {
 
       {success && (
         <div className="mt-6 rounded-2xl border border-[#C9A24A]/40 bg-[#F7F3EA] p-4 text-sm font-medium text-[#252525]">
-          Recibimos la información de tu propiedad. MR Inmobiliaria se pondrá en
-          contacto contigo para revisar los detalles.
+          La información fue enviada correctamente. MR Inmobiliaria se pondrá en
+          contacto contigo.
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
+          {errorMessage}
         </div>
       )}
 
       <div className="mt-7">
         <Button type="submit" className="w-full">
           <Send size={18} />
-          Enviar información de mi propiedad
+          {isSending ? "Enviando..." : "Enviar información de mi propiedad"}
         </Button>
       </div>
 

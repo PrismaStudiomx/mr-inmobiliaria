@@ -1,38 +1,34 @@
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = "https://mr-inmobiliaria.vercel.app";
+import { siteConfig } from "@/config/site";
+import { getAvailableProperties } from "@/lib/properties";
 
-  return [
-    {
-      url: siteUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${siteUrl}/propiedades`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${siteUrl}/vende-tu-propiedad`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${siteUrl}/perfil-de-mary`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${siteUrl}/contacto`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
+export const dynamic = "force-dynamic";
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const properties = await getAvailableProperties({ useFallback: false });
+
+  const staticRoutes = [
+    "",
+    "/propiedades",
+    "/vende-tu-propiedad",
+    "/perfil-de-mary",
+    "/contacto",
   ];
+
+  const staticUrls = staticRoutes.map((route) => ({
+    url: `${siteConfig.url}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: route === "" ? 1 : 0.8,
+  }));
+
+  const propertyUrls = properties.map((property) => ({
+    url: `${siteConfig.url}/propiedades/${property.slug}`,
+    lastModified: new Date(property.updatedAt),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticUrls, ...propertyUrls];
 }

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { PropertyForm } from "@/components/admin/PropertyForm";
-import { demoProperties } from "@/data/demo-properties";
+import { getAdminPropertyById } from "@/lib/properties";
 
 type EditPropertyPageProps = {
   params: Promise<{
@@ -9,11 +9,13 @@ type EditPropertyPageProps = {
   }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function EditPropertyPage({
   params,
 }: EditPropertyPageProps) {
   const { id } = await params;
-  const property = demoProperties.find((item) => item.id === id);
+  const property = await getAdminPropertyById(id);
 
   if (!property) {
     notFound();

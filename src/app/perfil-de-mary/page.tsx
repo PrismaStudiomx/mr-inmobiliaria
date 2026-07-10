@@ -15,6 +15,7 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Perfil de Mary",
@@ -117,20 +118,16 @@ export default function MaryProfilePage() {
 
             <Reveal delay={0.08}>
               <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5">
-                <div className="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[1.5rem] bg-[radial-gradient(circle_at_top_right,rgba(201,162,74,0.35),transparent_35%),linear-gradient(135deg,#252525,#0B0B0B)] text-center">
-                  <div>
-                    <p className="font-serif text-6xl font-semibold text-[#C9A24A]">
-                      Mary
-                    </p>
-                    <p className="mt-3 text-sm uppercase tracking-[0.22em] text-[#F7F3EA]/70">
-                      MR Inmobiliaria
-                    </p>
-                    <p className="mx-auto mt-5 max-w-xs text-sm leading-7 text-[#F7F3EA]/65">
-                      Aquí colocaremos la foto profesional de Mary cuando la
-                      integremos al proyecto.
-                    </p>
-                  </div>
-                </div>
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#0B0B0B]">
+  <Image
+    src="/mary.jpeg"
+    alt="Mary de MR Inmobiliaria"
+    fill
+    priority
+    className="object-cover"
+    sizes="(min-width: 1024px) 40vw, 100vw"
+  />
+</div>
               </div>
             </Reveal>
           </div>

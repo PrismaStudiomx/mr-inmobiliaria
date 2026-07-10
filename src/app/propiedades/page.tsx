@@ -4,7 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { PropertiesCatalog } from "@/components/properties/PropertiesCatalog";
-import { demoProperties } from "@/data/demo-properties";
+import { getAvailableProperties } from "@/lib/properties";
 import { siteConfig } from "@/config/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
@@ -19,7 +19,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PropertiesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function PropertiesPage() {
+  const properties = await getAvailableProperties();
   const whatsappUrl = buildWhatsAppUrl({ type: "comprar" });
 
   return (
@@ -70,7 +73,7 @@ export default function PropertiesPage() {
       </section>
 
       <div id="catalogo">
-        <PropertiesCatalog properties={demoProperties} />
+        <PropertiesCatalog properties={properties} />
       </div>
 
       <section className="bg-[#F7F3EA] py-16">

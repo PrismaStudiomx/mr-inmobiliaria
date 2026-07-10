@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { LockKeyhole } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
+import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Acceso al panel",
@@ -14,7 +15,15 @@ export default function AdminLoginPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(201,162,74,0.25),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.08),transparent_35%)]" />
 
         <div className="relative">
-          <p className="font-serif text-4xl font-semibold">MR Inmobiliaria</p>
+         <div className="relative h-16 w-52">
+  <Image
+    src="/logo-mr.png"
+    alt="MR Inmobiliaria"
+    fill
+    className="object-contain object-left"
+    sizes="208px"
+  />
+</div>
           <p className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
             Panel privado
           </p>
@@ -35,9 +44,15 @@ export default function AdminLoginPage() {
       <section className="flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
-            <p className="font-serif text-3xl font-semibold text-[#0B0B0B]">
-              MR Inmobiliaria
-            </p>
+            <div className="relative h-14 w-44">
+  <Image
+    src="/logo-mr.png"
+    alt="MR Inmobiliaria"
+    fill
+    className="object-contain object-left"
+    sizes="176px"
+  />
+</div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
               Panel privado
             </p>
@@ -56,36 +71,11 @@ export default function AdminLoginPage() {
               Acceso privado para administrar propiedades de MR Inmobiliaria.
             </p>
 
-            <form className="mt-8 grid gap-5">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#252525]">
-                  Usuario
-                </label>
-                <input
-                  type="text"
-                  placeholder="Usuario"
-                  className="min-h-12 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#C9A24A]"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#252525]">
-                  Contraseña
-                </label>
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  className="min-h-12 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#C9A24A]"
-                />
-              </div>
-
-              <Button type="submit" className="w-full">
-                Entrar al panel
-              </Button>
-            </form>
+            <AdminLoginForm />
 
             <p className="mt-5 text-xs leading-6 text-[#6F6A60]">
-              Más adelante conectaremos este acceso con Supabase Auth.
+              Usa el correo y contraseña del usuario administrador creado en
+              Supabase Auth.
             </p>
           </div>
         </div>

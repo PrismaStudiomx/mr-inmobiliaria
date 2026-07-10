@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Save } from "lucide-react";
 
@@ -29,7 +30,22 @@ type PropertyFormProps = {
   initialProperty?: Property;
 };
 
+function getString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
+function getNumber(formData: FormData, key: string) {
+  const value = getString(formData, key);
+  if (!value) return null;
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
+  const router = useRouter();
+
   const [category, setCategory] = useState<PropertyCategory>(
     initialProperty?.category || "Casa"
   );
@@ -71,8 +87,12 @@ export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
     initialProperty?.features || []
   );
+  
+  const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
 
+  const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const showSaleFields = operation === "Venta" || operation === "Venta y renta";
   const showRentFields = operation === "Renta" || operation === "Venta y renta";
@@ -107,9 +127,116 @@ export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
     textarea.value = descriptions[category];
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSuccess(true);
+
+    setIsSaving(true);
+    setSuccess(false);
+    setErrorMessage("");
+
+    const formData = new FormData(event.currentTarget);
+
+    const payload = {
+      title: getString(formData, "title"),
+      category,
+      operation,
+      publicationStatus,
+      featured,
+
+      state,
+      cityZone: getString(formData, "cityZone"),
+      neighborhoodReference: getString(formData, "neighborhoodReference"),
+
+      showExactAddress,
+      exactAddress: getString(formData, "exactAddress"),
+
+      showSalePrice: showSaleFields ? showSalePrice : false,
+      salePrice:
+        showSaleFields && showSalePrice ? getNumber(formData, "salePrice") : null,
+
+      showRentPrice: showRentFields ? showRentPrice : false,
+      rentPrice:
+        showRentFields && showRentPrice ? getNumber(formData, "rentPrice") : null,
+
+      bedrooms: isLand || isCommercial ? 0 : bedrooms,
+      bathrooms: isLand ? 0 : bathrooms,
+      halfBathrooms: isLand ? 0 : halfBathrooms,
+      parkingSpaces: isLand ? 0 : parkingSpaces,
+      levels: isLand ? 0 : levels,
+
+      constructionM2: !isLand ? getNumber(formData, "constructionM2") : null,
+      landM2: !isCommercial ? getNumber(formData, "landM2") : null,
+      totalSurfaceM2:
+        isLand || isCommercial ? getNumber(formData, "totalSurfaceM2") : null,
+
+      suggestedUse: getString(formData, "suggestedUse"),
+      services: [],
+      features: selectedFeatures,
+
+      shortDescription: getString(formData, "shortDescription"),
+      description: getString(formData, "description"),
+    };
+
+    const endpoint =
+      mode === "create"
+        ? "/api/admin/properties"
+        : `/api/admin/properties/${initialProperty?.id}`;
+
+    const method = mode === "create" ? "POST" : "PUT";
+
+    const response = await fetch(endpoint, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    setIsSaving(false);
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+      setErrorMessage(
+        data?.error || "No se pudo guardar la propiedad. Intenta nuevamente."
+      );
+      return;
+    }
+
+    const responseData = await response.json().catch(() => null);
+
+const propertyId =
+  mode === "create" ? responseData?.id : initialProperty?.id;
+
+if (selectedImageFiles.length > 0 && propertyId) {
+  const imageFormData = new FormData();
+
+  selectedImageFiles.forEach((file) => {
+    imageFormData.append("images", file);
+  });
+
+  const imageResponse = await fetch(
+    `/api/admin/properties/${propertyId}/images`,
+    {
+      method: "POST",
+      body: imageFormData,
+    }
+  );
+
+  if (!imageResponse.ok) {
+    const imageData = await imageResponse.json().catch(() => null);
+
+    setErrorMessage(
+      imageData?.error ||
+        "La propiedad se guardó, pero no se pudieron subir las fotografías."
+    );
+
+    return;
+  }
+}
+
+setSuccess(true);
+router.push("/admin/propiedades");
+router.refresh();
   }
 
   return (
@@ -440,7 +567,10 @@ export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
         </div>
       </section>
 
-      <ImageUploader initialImages={initialProperty?.images || []} />
+      <ImageUploader
+  initialImages={initialProperty?.images || []}
+  onFilesChange={setSelectedImageFiles}
+/>
 
       <section className="rounded-[2rem] border border-black/10 bg-[#FFFDF8] p-5 sm:p-7">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
@@ -527,11 +657,15 @@ export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
         </div>
       </section>
 
+      {errorMessage && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
       {success && (
         <div className="rounded-2xl border border-[#C9A24A]/40 bg-[#FFFDF8] p-5 text-sm font-semibold text-[#252525]">
-          {mode === "create"
-            ? "Propiedad guardada correctamente. Más adelante se guardará en Supabase."
-            : "Cambios guardados correctamente. Más adelante se actualizarán en Supabase."}
+          Propiedad guardada correctamente.
         </div>
       )}
 
@@ -543,7 +677,11 @@ export function PropertyForm({ mode, initialProperty }: PropertyFormProps) {
 
           <Button type="submit">
             <Save size={18} />
-            {mode === "create" ? "Guardar propiedad" : "Guardar cambios"}
+            {isSaving
+              ? "Guardando..."
+              : mode === "create"
+                ? "Guardar propiedad"
+                : "Guardar cambios"}
           </Button>
         </div>
       </div>

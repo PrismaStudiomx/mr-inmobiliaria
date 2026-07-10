@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   LayoutDashboard,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const adminNavigation = [
   {
@@ -57,6 +58,15 @@ function isAdminNavActive(pathname: string, href: string) {
 
 export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+
+    router.push("/admin/login");
+    router.refresh();
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F3EA]">
@@ -128,16 +138,22 @@ export function AdminShell({ children }: AdminShellProps) {
             Ver sitio público
           </Link>
 
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#F7F3EA]/75 transition hover:bg-white/10 hover:text-white"
+          <Link
+            href="/admin/configuracion"
+            className={cn(
+              "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
+              pathname === "/admin/configuracion"
+                ? "bg-[#C9A24A] text-[#0B0B0B]"
+                : "text-[#F7F3EA]/75 hover:bg-white/10 hover:text-white"
+            )}
           >
             <Settings size={19} />
             Configuración
-          </button>
+          </Link>
 
           <button
             type="button"
+            onClick={handleSignOut}
             className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#F7F3EA]/75 transition hover:bg-white/10 hover:text-white"
           >
             <LogOut size={19} />

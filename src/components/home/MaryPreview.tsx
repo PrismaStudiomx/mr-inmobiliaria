@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/config/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import Image from "next/image";
 
 export function MaryPreview() {
   const whatsappUrl = buildWhatsAppUrl({ type: "general" });
@@ -15,16 +16,15 @@ export function MaryPreview() {
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <Reveal>
             <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-[#F7F3EA] p-6">
-              <div className="flex aspect-[4/5] items-center justify-center rounded-[1.5rem] bg-[radial-gradient(circle_at_top_right,rgba(201,162,74,0.32),transparent_35%),linear-gradient(135deg,#252525,#0B0B0B)] text-center text-[#FFFDF8]">
-                <div>
-                  <p className="font-serif text-5xl font-semibold text-[#C9A24A]">
-                    Mary
-                  </p>
-                  <p className="mt-3 text-sm uppercase tracking-[0.22em] text-[#F7F3EA]/70">
-                    MR Inmobiliaria
-                  </p>
-                </div>
-              </div>
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#0B0B0B]">
+  <Image
+    src="/mary.jpg"
+    alt="Mary de MR Inmobiliaria"
+    fill
+    className="object-cover"
+    sizes="(min-width: 1024px) 40vw, 100vw"
+  />
+</div>
             </div>
           </Reveal>
 

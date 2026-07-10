@@ -9,7 +9,13 @@ import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyContactCard } from "@/components/properties/PropertyContactCard";
 import { PropertyDetails } from "@/components/properties/PropertyDetails";
 import { PropertyGallery } from "@/components/properties/PropertyGallery";
-import { demoProperties } from "@/data/demo-properties";
+import { PropertyInterestForm } from "@/components/forms/PropertyInterestForm";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { propertySchema } from "@/lib/schema";
+import {
+  getAvailableProperties,
+  getAvailablePropertyBySlug,
+} from "@/lib/properties";
 import {
   getPropertyLocation,
   getPropertyPriceLabel,
@@ -24,26 +30,13 @@ type PropertyPageProps = {
   }>;
 };
 
-function getProperty(slug: string) {
-  return demoProperties.find(
-    (property) =>
-      property.slug === slug && property.publicationStatus === "Disponible"
-  );
-}
-
-export function generateStaticParams() {
-  return demoProperties
-    .filter((property) => property.publicationStatus === "Disponible")
-    .map((property) => ({
-      slug: property.slug,
-    }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PropertyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const property = getProperty(slug);
+  const property = await getAvailablePropertyBySlug(slug);
 
   if (!property) {
     return {
@@ -67,11 +60,14 @@ export async function generateMetadata({
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = await params;
-  const property = getProperty(slug);
+
+  const property = await getAvailablePropertyBySlug(slug);
 
   if (!property) {
     notFound();
   }
+
+  const allProperties = await getAvailableProperties();
 
   const location = getPropertyLocation(property);
   const price = getPropertyPriceLabel(property);
@@ -81,17 +77,18 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     propertyName: property.title,
   });
 
-  const relatedProperties = demoProperties
+  const relatedProperties = allProperties
     .filter(
       (item) =>
         item.id !== property.id &&
-        item.publicationStatus === "Disponible" &&
         (item.category === property.category || item.state === property.state)
     )
     .slice(0, 3);
 
   return (
     <>
+       <JsonLd data={propertySchema(property)} />
+       
       <section className="bg-[#0B0B0B] py-16 text-[#FFFDF8] sm:py-20">
         <Container>
           <div className="max-w-4xl">
@@ -218,8 +215,40 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         </Container>
       </section>
 
+      <section className="bg-[#FFFDF8] py-16">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div className="lg:sticky lg:top-28">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#C9A24A]">
+                Contacto
+              </p>
+
+              <h2 className="mt-3 font-serif text-4xl font-semibold text-[#0B0B0B]">
+                ¿Quieres más información?
+              </h2>
+
+              <p className="mt-5 text-sm leading-7 text-[#6F6A60]">
+                Solicita información sobre esta propiedad y MR Inmobiliaria podrá
+                contactarte para resolver dudas sobre precio, disponibilidad,
+                ubicación o visita.
+              </p>
+
+              <p className="mt-6 border-l border-[#C9A24A] pl-4 text-sm font-semibold text-[#252525]">
+                {siteConfig.slogan}
+              </p>
+            </div>
+
+            <PropertyInterestForm
+              propertyName={property.title}
+              operation={property.operation}
+              location={location}
+            />
+          </div>
+        </Container>
+      </section>
+
       {relatedProperties.length > 0 && (
-        <section className="bg-[#FFFDF8] py-16">
+        <section className="bg-[#F7F3EA] py-16">
           <Container>
             <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>

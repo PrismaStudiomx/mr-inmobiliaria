@@ -15,9 +15,45 @@ const interestOptions = [
 
 export function ContactForm() {
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    setSuccess(false);
+    setErrorMessage("");
+    setIsSending(true);
+
+    const formData = new FormData(event.currentTarget);
+
+    const payload = {
+      name: String(formData.get("name") || ""),
+      phone: String(formData.get("phone") || ""),
+      email: String(formData.get("email") || ""),
+      interest: String(formData.get("interest") || ""),
+      state: String(formData.get("state") || ""),
+      message: String(formData.get("message") || ""),
+    };
+
+    const response = await fetch("/api/contacto", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    setIsSending(false);
+
+    if (!response.ok) {
+      setErrorMessage(
+        "No se pudo enviar el mensaje. Intenta nuevamente o contáctanos por WhatsApp."
+      );
+      return;
+    }
+
+    event.currentTarget.reset();
     setSuccess(true);
   }
 
@@ -135,15 +171,21 @@ export function ContactForm() {
 
       {success && (
         <div className="mt-6 rounded-2xl border border-[#C9A24A]/40 bg-[#F7F3EA] p-4 text-sm font-medium text-[#252525]">
-          Tu mensaje fue registrado correctamente. MR Inmobiliaria se pondrá en
+          Tu mensaje fue enviado correctamente. MR Inmobiliaria se pondrá en
           contacto contigo.
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
+          {errorMessage}
         </div>
       )}
 
       <div className="mt-7">
         <Button type="submit" className="w-full">
           <Send size={18} />
-          Enviar mensaje
+          {isSending ? "Enviando..." : "Enviar mensaje"}
         </Button>
       </div>
 
