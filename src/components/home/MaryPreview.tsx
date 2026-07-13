@@ -18,7 +18,7 @@ export function MaryPreview() {
             <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-[#F7F3EA] p-6">
               <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#0B0B0B]">
   <Image
-    src="/mary.jpg"
+    src="/mary.jpEg"
     alt="Mary de MR Inmobiliaria"
     fill
     className="object-cover"
