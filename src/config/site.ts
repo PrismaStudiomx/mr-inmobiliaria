@@ -8,7 +8,7 @@ export const siteConfig = {
 // Formato: país + número, sin espacios, sin +, sin guiones.
 whatsappPrincipal: "528128840795",
 
-url: "https://mr-inmobiliaria.vercel.app",
+url: "https://www.mrinmobiliaria.mx",
 
   areas: [
     "Nuevo León",
